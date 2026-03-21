@@ -34,18 +34,19 @@ export default function ProfilePage() {
           return;
         }
 
-        // Get user profile
+        // Get user profile by employee_id derived from auth email
+        const employeeId = (session.user.email || '').split('@')[0].toUpperCase();
         const { data: profile } = await supabase
           .from('users')
           .select('*')
-          .eq('id', session.user.id)
+          .eq('employee_id', employeeId)
           .single();
 
         if (profile) {
           setUser(profile);
 
           // Get logs for stats
-          const logs = await getLogs(session.user.id);
+          const logs = await getLogs(profile.id);
           setStats({
             totalLogged: logs.length,
             streak: calculateStreak(logs),

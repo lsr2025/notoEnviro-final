@@ -47,6 +47,7 @@ export const saveLog = async (log: ActivityLog): Promise<string> => {
 
   const logToSave = {
     ...log,
+    id,
     offline_id: id,
     created_at: new Date().toISOString(),
   };

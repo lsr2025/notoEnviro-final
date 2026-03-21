@@ -29,25 +29,26 @@ export default function HistoryPage() {
           return;
         }
 
-        // Get user profile
+        // Get user profile by employee_id derived from auth email
+        const employeeId = (session.user.email || '').split('@')[0].toUpperCase();
         const { data: profile } = await supabase
           .from('users')
           .select('*')
-          .eq('id', session.user.id)
+          .eq('employee_id', employeeId)
           .single();
 
         if (profile) {
           setUser(profile);
 
           // Get logs from offline DB
-          const offlineLogs = await getLogs(session.user.id);
+          const offlineLogs = await getLogs(profile.id);
           setLogs(offlineLogs.sort((a, b) => new Date(b.log_date).getTime() - new Date(a.log_date).getTime()));
 
           // Get Supabase logs
           const { data: dbLogs } = await supabase
-            .from('notoenviro.activity_logs')
+            .from('activity_logs')
             .select('*')
-            .eq('worker_id', session.user.id)
+            .eq('worker_id', profile.id)
             .order('log_date', { ascending: false });
 
           if (dbLogs) {
@@ -60,7 +61,7 @@ export default function HistoryPage() {
 
           // Calculate monthly stats
           const stats = await getMonthlyStats(
-            session.user.id,
+            profile.id,
             currentMonth.getFullYear(),
             currentMonth.getMonth()
           );

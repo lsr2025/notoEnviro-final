@@ -31,11 +31,12 @@ export default function DashboardPage() {
           return;
         }
 
-        // Get user profile
+        // Get user profile by employee_id derived from auth email
+        const employeeId = (session.user.email || '').split('@')[0].toUpperCase();
         const { data: profile } = await supabase
           .from('users')
           .select('*')
-          .eq('id', session.user.id)
+          .eq('employee_id', employeeId)
           .single();
 
         if (profile) {
@@ -45,9 +46,9 @@ export default function DashboardPage() {
         // Check if today's log exists
         const today = new Date().toISOString().split('T')[0];
         const { data: todayLog } = await supabase
-          .from('notoenviro.activity_logs')
+          .from('activity_logs')
           .select('*')
-          .eq('worker_id', session.user.id)
+          .eq('worker_id', profile?.id)
           .eq('log_date', today)
           .single();
 

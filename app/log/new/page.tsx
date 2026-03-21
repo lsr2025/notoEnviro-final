@@ -50,10 +50,11 @@ export default function LogNewPage() {
           return;
         }
 
+        const employeeId = (session.user.email || '').split('@')[0].toUpperCase();
         const { data: profile } = await supabase
           .from('users')
           .select('*')
-          .eq('id', session.user.id)
+          .eq('employee_id', employeeId)
           .single();
 
         if (profile) {
@@ -119,7 +120,7 @@ export default function LogNewPage() {
       // Try to sync to Supabase
       try {
         const { error: dbError } = await supabase
-          .from('notoenviro.activity_logs')
+          .from('activity_logs')
           .insert([
             {
               ...log,
