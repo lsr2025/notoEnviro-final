@@ -16,6 +16,7 @@ export default function DashboardPage() {
   const [pendingCount, setPendingCount] = useState(0);
   const [todayLogged, setTodayLogged] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const router = useRouter();
 
   useEffect(() => {
@@ -33,32 +34,44 @@ export default function DashboardPage() {
 
         // Get user profile by employee_id derived from auth email
         const employeeId = (session.user.email || '').split('@')[0].toUpperCase();
-        const { data: profile } = await supabase
+        const { data: profile, error: profileError } = await supabase
           .from('users')
           .select('*')
           .eq('employee_id', employeeId)
-          .single();
+          .maybeSingle();
 
-        if (profile) {
-          setUser(profile);
+        if (profileError) {
+          setError(`Profile error: ${profileError.message}`);
+          return;
         }
 
-        // Check if today's log exists
+        if (!profile) {
+          setError(`No profile found for ${employeeId}. Contact your supervisor.`);
+          return;
+        }
+
+        setUser(profile);
+
+        // Check if today's log exists (only if profile loaded)
         const today = new Date().toISOString().split('T')[0];
         const { data: todayLog } = await supabase
           .from('activity_logs')
-          .select('*')
-          .eq('worker_id', profile?.id)
+          .select('id')
+          .eq('worker_id', profile.id)
           .eq('log_date', today)
-          .single();
+          .maybeSingle();
 
         setTodayLogged(!!todayLog);
 
         // Get pending count
-        const pending = await getPendingCount();
-        setPendingCount(pending);
-      } catch (err) {
-        console.error('Dashboard init error:', err);
+        try {
+          const pending = await getPendingCount();
+          setPendingCount(pending);
+        } catch {
+          // offline-db not critical
+        }
+      } catch (err: any) {
+        setError(err.message || 'Failed to load dashboard. Please try again.');
       } finally {
         setLoading(false);
       }
@@ -75,9 +88,30 @@ export default function DashboardPage() {
     );
   }
 
-  if (!user) {
-    return null;
+  if (error) {
+    return (
+      <main className="bg-dark min-h-screen flex items-center justify-center px-4">
+        <div className="bg-navy rounded-lg p-6 border border-red-500/50 max-w-sm w-full">
+          <p className="text-red-400 text-sm font-semibold mb-2">Could not load dashboard</p>
+          <p className="text-gray-300 text-sm mb-4">{error}</p>
+          <button
+            onClick={() => { setError(''); setLoading(true); window.location.reload(); }}
+            className="w-full bg-teal text-white py-2 rounded-lg text-sm font-semibold"
+          >
+            Retry
+          </button>
+          <button
+            onClick={async () => { await supabase.auth.signOut(); router.push('/'); }}
+            className="w-full mt-2 bg-gray-700 text-gray-300 py-2 rounded-lg text-sm"
+          >
+            Sign Out
+          </button>
+        </div>
+      </main>
+    );
   }
+
+  if (!user) return null;
 
   // Eco-Worker View (Tier 4)
   if (user.role_tier === 4) {
