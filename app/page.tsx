@@ -39,7 +39,7 @@ export default function LoginPage() {
           .from('users')
           .select('*')
           .eq('employee_id', employeeId.toUpperCase())
-          .single();
+          .maybeSingle();
 
         if (profile) {
           // Store user info in session storage

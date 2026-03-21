@@ -35,7 +35,7 @@ export default function HistoryPage() {
           .from('users')
           .select('*')
           .eq('employee_id', employeeId)
-          .single();
+          .maybeSingle();
 
         if (profile) {
           setUser(profile);
