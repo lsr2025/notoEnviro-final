@@ -3,25 +3,15 @@ import './globals.css'
 import Sidebar from './components/Sidebar'
 
 export const metadata: Metadata = {
-  title: 'NotoEnviro | SEF Eco-Worker Tracking',
-  description: 'Environmental field data tracking for Social Employment Fund',
+title: 'NotoEnviro | SEF Eco-Worker Tracking',
+description: 'Environmental field data tracking for Social Employment Fund',
 }
 
 export default function RootLayout({
-  children,
+children,
 }: {
-  children: React.ReactNode
+children: React.ReactNode
 }) {
-  return (
-    <html lang="en">
-      <body>
-        <div className="app-shell">
-          <Sidebar />
-          <div className="main-content">
-            {children}
-          </div>
-        </div>
-      </body>
-    </html>
-  )
-}
+return (
+<html lang="en">
+<body className="bg-[#0B0F19] text-white">
