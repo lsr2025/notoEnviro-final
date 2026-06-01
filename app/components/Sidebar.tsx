@@ -1,11 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import {
   LayoutDashboard,
+  BarChart3,
   User,
   Menu,
   LogOut,
@@ -13,17 +14,28 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-// Phase-1 nav. The Workstream-B capture screens (field reports, history,
-// per-site views) are rebuilt in Phase 2 and added here then.
-const navItems = [
-  { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { label: "Profile", href: "/profile", icon: User },
-]
-
 export default function Sidebar() {
   const pathname = usePathname()
   const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
+  const [showAnalytics, setShowAnalytics] = useState(false)
+
+  // Show Analytics to everyone who can see reports (everyone except eco-workers).
+  useEffect(() => {
+    let active = true
+    supabase.auth.getUser().then(async ({ data }) => {
+      if (!data.user) return
+      const { data: p } = await supabase.from("app_profiles").select("role").eq("id", data.user.id).maybeSingle()
+      if (active && p && p.role !== "eco_worker") setShowAnalytics(true)
+    })
+    return () => { active = false }
+  }, [])
+
+  const navItems = [
+    { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+    ...(showAnalytics ? [{ label: "Analytics", href: "/analytics", icon: BarChart3 }] : []),
+    { label: "Profile", href: "/profile", icon: User },
+  ]
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
