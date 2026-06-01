@@ -1,22 +1,46 @@
 import { type NextRequest, NextResponse } from 'next/server';
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
 
-export function middleware(request: NextRequest) {
+// Public routes that never require a session.
+const PUBLIC_PATHS = ['/'];
+
+export async function middleware(request: NextRequest) {
+  let response = NextResponse.next({ request });
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
+          cookiesToSet.forEach(({ name, value }) =>
+            request.cookies.set(name, value)
+          );
+          response = NextResponse.next({ request });
+          cookiesToSet.forEach(({ name, value, options }) =>
+            response.cookies.set(name, value, options)
+          );
+        },
+      },
+    }
+  );
+
+  // Refreshes the session cookie and tells us if the user is authenticated.
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   const { pathname } = request.nextUrl;
+  const isPublic = PUBLIC_PATHS.includes(pathname);
 
-  // Allow login page
-  if (pathname === '/') {
-    return NextResponse.next();
-  }
-
-  // Check for auth token in cookies
-  const authToken = request.cookies.get('auth-token');
-
-  // If no auth token and trying to access protected route, redirect to login
-  if (!authToken && pathname !== '/') {
+  if (!user && !isPublic) {
     return NextResponse.redirect(new URL('/', request.url));
   }
 
-  return NextResponse.next();
+  return response;
 }
 
 export const config = {

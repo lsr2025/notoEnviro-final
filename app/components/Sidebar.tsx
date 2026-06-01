@@ -2,33 +2,37 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
+import { supabase } from "@/lib/supabase"
 import {
   LayoutDashboard,
-  ClipboardList,
-  History,
   User,
-  Map,
   Menu,
   LogOut,
   X
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
+// Phase-1 nav. The Workstream-B capture screens (field reports, history,
+// per-site views) are rebuilt in Phase 2 and added here then.
 const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { label: "Log Activity", href: "/log/new", icon: ClipboardList },
-  { label: "History", href: "/history", icon: History },
-  { label: "Sites", href: "/site", icon: Map },
   { label: "Profile", href: "/profile", icon: User },
 ]
 
 export default function Sidebar() {
   const pathname = usePathname()
+  const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
 
-  // Don't show sidebar on login page
-  if (pathname === "/") return null
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    router.replace("/")
+    router.refresh()
+  }
+
+  // Don't show sidebar on the login or first-login password pages
+  if (pathname === "/" || pathname === "/change-password") return null
 
   return (
     <>
@@ -118,7 +122,7 @@ export default function Sidebar() {
               <p className="text-white text-sm font-medium truncate">NotoEnviro</p>
               <p className="text-white/30 text-[11px] truncate">Admin Dashboard</p>
             </div>
-            <button className="p-2 rounded-lg hover:bg-white/5 text-white/30 hover:text-white transition-colors">
+            <button onClick={handleLogout} title="Sign out" className="p-2 rounded-lg hover:bg-white/5 text-white/30 hover:text-white transition-colors">
               <LogOut className="w-4 h-4" />
             </button>
           </div>

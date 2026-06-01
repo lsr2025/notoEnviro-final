@@ -25,38 +25,21 @@ export default function LoginPage() {
         password,
       });
 
-      if (authError) {
+      if (authError || !data.session) {
         setError('Invalid employee ID or password');
         setLoading(false);
         return;
       }
 
-      if (data.session) {
-        // Store session in cookie (simplified)
-        document.cookie = `auth-token=${data.session.access_token}; path=/; max-age=86400`;
+      // First-time logins must set a personal password (spec §6).
+      const { data: profile } = await supabase
+        .from('app_profiles')
+        .select('must_change_password')
+        .eq('id', data.session.user.id)
+        .maybeSingle();
 
-        // Fetch user profile - try both 'profiles' and 'users' for compatibility
-        let { data: profile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('user_id', data.session.user.id)
-          .maybeSingle();
-        
-        if (!profile) {
-          const { data: oldProfile } = await supabase
-            .from('users')
-            .select('*')
-            .eq('employee_id', employeeId.toUpperCase())
-            .maybeSingle();
-          profile = oldProfile;
-        }
-
-        if (profile) {
-          sessionStorage.setItem('user', JSON.stringify(profile));
-        }
-
-        router.push('/dashboard');
-      }
+      router.replace(profile?.must_change_password ? '/change-password' : '/dashboard');
+      router.refresh();
     } catch (err: any) {
       setError(err.message || 'Login failed. Please try again.');
     } finally {
