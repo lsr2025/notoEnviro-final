@@ -28,11 +28,11 @@ export default async function AnalyticsPage() {
       {/* KPI row */}
       <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
         <StatCard title="Reports" value={a.kpis.reports.toLocaleString()} subtitle="Submitted" icon={ClipboardList} color="blue" />
-        <StatCard title="Participants" value={a.kpis.participants.toLocaleString()} subtitle="Total present" icon={Users} color="emerald" />
+        <StatCard title="Avg on site" value={a.kpis.avgPresent} subtitle="Present / report" icon={Users} color="emerald" />
         <StatCard title="Attendance" value={pct(a.kpis.attendanceRate)} subtitle="Present ÷ scheduled" icon={Percent} color="teal" />
         <StatCard title="Incidents" value={a.kpis.incidents} subtitle="Flagged reports" icon={AlertTriangle} color="rose" />
         <StatCard title="Sites Active" value={`${a.kpis.sitesReporting}/${a.kpis.sitesTotal}`} subtitle="Reporting" icon={MapPin} color="purple" />
-        <StatCard title="Absentees" value={a.kpis.absentees.toLocaleString()} subtitle="Recorded" icon={UserX} color="amber" />
+        <StatCard title="Avg absent" value={a.kpis.avgAbsent} subtitle="Per report" icon={UserX} color="amber" />
       </div>
 
       {/* Trend */}
@@ -59,7 +59,7 @@ export default async function AnalyticsPage() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-gray-50 text-left">
-                {['Site', 'Reports', 'Participants', 'Attendance', 'Incidents', 'Last report', ''].map((h) => (
+                {['Site', 'Reports', 'Avg present', 'Attendance', 'Incidents', 'Last report', ''].map((h) => (
                   <th key={h} className="py-3 px-6 md:px-8 text-[11px] font-bold text-gray-400 uppercase tracking-widest">{h}</th>
                 ))}
               </tr>
@@ -71,7 +71,7 @@ export default async function AnalyticsPage() {
                     <Link href={`/analytics/site/${s.id}`} className="font-bold text-gray-900 hover:text-yami-blue">{s.name}</Link>
                   </td>
                   <td className="py-4 px-6 md:px-8 text-sm text-gray-700">{s.reports}</td>
-                  <td className="py-4 px-6 md:px-8 text-sm text-gray-700">{s.participants.toLocaleString()}</td>
+                  <td className="py-4 px-6 md:px-8 text-sm text-gray-700">{s.avgPresent}</td>
                   <td className="py-4 px-6 md:px-8 text-sm font-semibold text-gray-900">{pct(s.attendance)}</td>
                   <td className="py-4 px-6 md:px-8 text-sm">
                     {s.incidents > 0 ? <span className="px-2 py-0.5 rounded-lg bg-rose-50 text-rose-600 text-xs font-bold">{s.incidents}</span> : <span className="text-gray-300">0</span>}

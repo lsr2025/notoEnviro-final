@@ -7,6 +7,7 @@ import { supabase } from "@/lib/supabase"
 import {
   LayoutDashboard,
   BarChart3,
+  BookOpen,
   User,
   Menu,
   LogOut,
@@ -34,6 +35,7 @@ export default function Sidebar() {
   const navItems = [
     { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
     ...(showAnalytics ? [{ label: "Analytics", href: "/analytics", icon: BarChart3 }] : []),
+    { label: "Stories", href: "/stories", icon: BookOpen },
     { label: "Profile", href: "/profile", icon: User },
   ]
 

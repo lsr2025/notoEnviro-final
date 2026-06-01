@@ -46,7 +46,7 @@ export function StreamDonut({ data }: { data: Slice[] }) {
 }
 
 export function SiteBars({ data }: { data: SiteRollup[] }) {
-  const d = data.map((s) => ({ name: s.name.replace(/ Dam$| Wetlands$/, ''), reports: s.reports, participants: s.participants }));
+  const d = data.map((s) => ({ name: s.name.replace(/ Dam$| Wetlands$/, ''), reports: s.reports }));
   return (
     <ResponsiveContainer width="100%" height={Math.max(240, d.length * 34)}>
       <BarChart data={d} layout="vertical" margin={{ top: 4, right: 16, left: 8, bottom: 4 }}>

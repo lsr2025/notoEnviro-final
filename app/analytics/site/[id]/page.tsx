@@ -35,7 +35,7 @@ export default async function DamAnalyticsPage({ params }: { params: Promise<{ i
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard title="Reports" value={a.kpis.reports.toLocaleString()} subtitle="Submitted" icon={ClipboardList} color="blue" />
-        <StatCard title="Participants" value={a.kpis.participants.toLocaleString()} subtitle="Total present" icon={Users} color="emerald" />
+        <StatCard title="Avg on site" value={a.kpis.avgPresent} subtitle="Present / report" icon={Users} color="emerald" />
         <StatCard title="Attendance" value={pct(a.kpis.attendanceRate)} subtitle="Present ÷ scheduled" icon={Percent} color="teal" />
         <StatCard title="Incidents" value={a.kpis.incidents} subtitle="Flagged" icon={AlertTriangle} color="rose" />
       </div>

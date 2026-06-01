@@ -20,17 +20,17 @@ export interface ReportRow {
 
 export interface Kpis {
   reports: number;
-  participants: number;          // total present across reports
+  avgPresent: number;            // avg participants present PER report (not a cumulative sum)
   attendanceRate: number | null; // present / scheduled (0..1)
   incidents: number;
   sitesReporting: number;
   sitesTotal: number;
-  absentees: number;
+  avgAbsent: number;             // avg absentees per report
 }
 export interface TrendPoint { month: string; label: string; reports: number; attendance: number | null; participants: number }
 export interface Slice { key: string; label: string; value: number }
 export interface SiteRollup {
-  id: string; name: string; reports: number; participants: number;
+  id: string; name: string; reports: number; avgPresent: number;
   attendance: number | null; incidents: number; lastReport: string | null;
 }
 export interface SupervisorRollup { id: string; name: string; reports: number; attendance: number | null; incidents: number }
@@ -96,14 +96,15 @@ export async function getAnalytics(opts?: { siteId?: string }): Promise<Analytic
   const siteName = new Map(sites.map((s) => [s.id, s.name]));
   const profName = new Map((profsRaw ?? []).map((p: any) => [p.id, p.full_name]));
 
-  // KPIs
-  let present = 0, scheduled = 0, incidents = 0, absentees = 0;
+  // KPIs. Count denominators only over reports that actually filled the field
+  // (≈7% of historical rows left participant counts blank — don't treat as 0).
+  let present = 0, scheduled = 0, incidents = 0, absentees = 0, presentN = 0, absentN = 0;
   const sitesReporting = new Set<string>();
   let latestDate: string | null = null;
   for (const r of rows) {
-    present += r.participants_present ?? 0;
+    if (r.participants_present != null) { present += r.participants_present; presentN++; }
     scheduled += r.participants_scheduled ?? 0;
-    absentees += r.absentees_count ?? 0;
+    if (r.absentees_count != null) { absentees += r.absentees_count; absentN++; }
     if (r.incident) incidents++;
     sitesReporting.add(r.site_id);
     if (!latestDate || r.report_date > latestDate) latestDate = r.report_date;
@@ -132,16 +133,19 @@ export async function getAnalytics(opts?: { siteId?: string }): Promise<Analytic
     .map((k) => ({ key: k, label: STREAM_LABELS[k], value: smap.get(k)! }));
 
   // Per-site rollup
-  const rollupMap = new Map<string, { reports: number; present: number; scheduled: number; incidents: number; last: string | null }>();
+  const rollupMap = new Map<string, { reports: number; present: number; presentN: number; scheduled: number; incidents: number; last: string | null }>();
   for (const r of rows) {
-    const a = rollupMap.get(r.site_id) ?? { reports: 0, present: 0, scheduled: 0, incidents: 0, last: null };
-    a.reports++; a.present += r.participants_present ?? 0; a.scheduled += r.participants_scheduled ?? 0;
+    const a = rollupMap.get(r.site_id) ?? { reports: 0, present: 0, presentN: 0, scheduled: 0, incidents: 0, last: null };
+    a.reports++;
+    if (r.participants_present != null) { a.present += r.participants_present; a.presentN++; }
+    a.scheduled += r.participants_scheduled ?? 0;
     if (r.incident) a.incidents++;
     if (!a.last || r.report_date > a.last) a.last = r.report_date;
     rollupMap.set(r.site_id, a);
   }
   const bySite: SiteRollup[] = [...rollupMap.entries()].map(([id, a]) => ({
-    id, name: siteName.get(id) ?? 'Unknown', reports: a.reports, participants: a.present,
+    id, name: siteName.get(id) ?? 'Unknown', reports: a.reports,
+    avgPresent: a.presentN ? Math.round(a.present / a.presentN) : 0,
     attendance: rate(a.present, a.scheduled), incidents: a.incidents, lastReport: a.last,
   })).sort((x, y) => y.reports - x.reports);
 
@@ -168,9 +172,11 @@ export async function getAnalytics(opts?: { siteId?: string }): Promise<Analytic
 
   return {
     kpis: {
-      reports: rows.length, participants: present,
+      reports: rows.length,
+      avgPresent: presentN ? Math.round(present / presentN) : 0,
       attendanceRate: rate(present, scheduled), incidents,
-      sitesReporting: sitesReporting.size, sitesTotal: sites.filter((s) => !s.is_head_office).length, absentees,
+      sitesReporting: sitesReporting.size, sitesTotal: sites.filter((s) => !s.is_head_office).length,
+      avgAbsent: absentN ? Math.round(absentees / absentN) : 0,
     },
     trend, byStream, bySite, bySupervisor,
     challenges: topPhrases(rows.map((r) => r.challenges_risks)),
