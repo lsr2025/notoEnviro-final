@@ -127,9 +127,14 @@ export default function LoginPage() {
                 </label>
                 <input
                   type="text"
+                  inputMode="text"
+                  autoCapitalize="characters"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  autoComplete="username"
                   placeholder="e.g. YMS-M-FS-001"
                   value={employeeId}
-                  onChange={(e) => setEmployeeId(e.target.value.toUpperCase())}
+                  onChange={(e) => setEmployeeId(e.target.value.toUpperCase().trim())}
                   className="w-full px-5 py-4 rounded-2xl bg-gray-50 border-none text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-yami-blue/20 transition-all font-medium"
                   required
                   disabled={loading}
@@ -142,6 +147,10 @@ export default function LoginPage() {
                 </label>
                 <input
                   type="password"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  autoComplete="current-password"
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -152,7 +161,7 @@ export default function LoginPage() {
                 <div className="mt-3 flex items-start gap-2 px-1">
                   <Info className="w-3.5 h-3.5 text-yami-blue mt-0.5 shrink-0" />
                   <p className="text-[11px] text-gray-400 font-medium leading-relaxed">
-                    Default password is your Employee ID unless you have changed it.
+                    Use the temporary password you were given. You&apos;ll set your own on first login. Passwords are case-sensitive.
                   </p>
                 </div>
               </div>

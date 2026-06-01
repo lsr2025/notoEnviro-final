@@ -75,6 +75,10 @@ export default function ChangePasswordPage() {
               </label>
               <input
                 type="password"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
+                autoComplete="new-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="At least 8 characters"
@@ -89,6 +93,10 @@ export default function ChangePasswordPage() {
               </label>
               <input
                 type="password"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
+                autoComplete="new-password"
                 value={confirm}
                 onChange={(e) => setConfirm(e.target.value)}
                 placeholder="Re-enter your password"
