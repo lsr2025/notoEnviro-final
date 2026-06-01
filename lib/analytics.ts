@@ -94,6 +94,7 @@ export async function getAnalytics(opts?: { siteId?: string }): Promise<Analytic
   const rows = (rowsRaw ?? []) as ReportRow[];
   const sites = (sitesRaw ?? []) as { id: string; name: string; is_head_office: boolean }[];
   const siteName = new Map(sites.map((s) => [s.id, s.name]));
+  const hqIds = new Set(sites.filter((s) => s.is_head_office).map((s) => s.id));
   const profName = new Map((profsRaw ?? []).map((p: any) => [p.id, p.full_name]));
 
   // KPIs. Count denominators only over reports that actually filled the field
@@ -106,7 +107,7 @@ export async function getAnalytics(opts?: { siteId?: string }): Promise<Analytic
     scheduled += r.participants_scheduled ?? 0;
     if (r.absentees_count != null) { absentees += r.absentees_count; absentN++; }
     if (r.incident) incidents++;
-    sitesReporting.add(r.site_id);
+    if (!hqIds.has(r.site_id)) sitesReporting.add(r.site_id); // operational dams only
     if (!latestDate || r.report_date > latestDate) latestDate = r.report_date;
   }
 
