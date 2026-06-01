@@ -3,8 +3,11 @@ import { redirect } from 'next/navigation';
 import { ClipboardList, Users, Percent, AlertTriangle, MapPin, UserX, ChevronRight, TrendingUp } from 'lucide-react';
 import StatCard from '@/components/StatCard';
 import { TrendChart, StreamDonut, SiteBars } from '@/components/charts';
+import BriefingCard from '@/components/BriefingCard';
+import { createClient } from '@/lib/supabase-server';
 import { requireProfile } from '@/lib/auth';
 import { getAnalytics } from '@/lib/analytics';
+import { IS_MANAGEMENT } from '@/lib/roles';
 
 const pct = (r: number | null) => (r == null ? '—' : `${Math.round(r * 100)}%`);
 
@@ -12,6 +15,15 @@ export default async function AnalyticsPage() {
   const profile = await requireProfile();
   if (profile.role === 'eco_worker') redirect('/dashboard');
   const a = await getAnalytics();
+
+  const supabase = await createClient();
+  const { data: insight } = await supabase
+    .from('programme_insights')
+    .select('briefing, generated_at')
+    .eq('scope', 'programme')
+    .order('generated_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
 
   return (
     <div className="p-6 md:p-8 lg:p-10 max-w-[1400px] mx-auto space-y-6">
@@ -24,6 +36,12 @@ export default async function AnalyticsPage() {
           </p>
         </div>
       </div>
+
+      <BriefingCard
+        briefing={insight?.briefing ?? null}
+        generatedAt={insight?.generated_at ?? null}
+        canRefresh={IS_MANAGEMENT.includes(profile.role)}
+      />
 
       {/* KPI row */}
       <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
