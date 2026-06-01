@@ -6,6 +6,6 @@ import { createBrowserClient } from '@supabase/ssr';
 // that the middleware and server components can read. (The old client set a
 // manual `auth-token` cookie the server never honoured, causing a login loop.)
 export const supabase = createBrowserClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  process.env.NEXT_PUBLIC_SUPABASE_URL!.trim(),
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!.trim()
 );
