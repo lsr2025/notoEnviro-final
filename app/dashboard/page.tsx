@@ -2,7 +2,8 @@ import { createClient } from '@/lib/supabase-server'
 import Link from 'next/link'
 import { Users, ClipboardList, Map, Briefcase, Plus } from "lucide-react"
 import StatCard from "@/components/StatCard"
-import { requireProfile, STREAM_LABELS, CAN_CREATE_REPORTS, displayTitle } from "@/lib/roles"
+import { STREAM_LABELS, CAN_CREATE_REPORTS, displayTitle } from "@/lib/roles"
+import { requireProfile } from "@/lib/auth"
 
 export default async function DashboardPage() {
   const profile = await requireProfile()

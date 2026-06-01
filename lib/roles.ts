@@ -1,7 +1,5 @@
 // Single source of truth for the consolidated NotoEnviro role model (spec §2).
-import { redirect } from 'next/navigation';
-import { createClient } from './supabase-server';
-
+// Client-safe: pure types + constants only. Server-only helpers live in lib/auth.ts.
 export type NotoRole =
   | 'executive'
   | 'operations_manager'
@@ -56,29 +54,5 @@ export const IS_MANAGEMENT: NotoRole[] = [
   'district_coordinator',
 ];
 
-const PROFILE_COLUMNS =
+export const PROFILE_COLUMNS =
   'id, employee_id, full_name, role, job_title, home_site_id, stream, must_change_password';
-
-// Server-side: returns the signed-in user's profile or redirects to login.
-// Also enforces the must_change_password gate everywhere except the change page.
-export async function requireProfile(opts?: {
-  allowMustChange?: boolean;
-}): Promise<NotoProfile> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect('/');
-
-  const { data: profile } = await supabase
-    .from('app_profiles')
-    .select(PROFILE_COLUMNS)
-    .eq('id', user.id)
-    .single<NotoProfile>();
-
-  if (!profile) redirect('/');
-  if (profile.must_change_password && !opts?.allowMustChange) {
-    redirect('/change-password');
-  }
-  return profile;
-}

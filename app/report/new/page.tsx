@@ -1,29 +1,49 @@
 import Link from 'next/link';
-import { ClipboardList, ArrowLeft } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { redirect } from 'next/navigation';
-import { requireProfile, CAN_CREATE_REPORTS } from '@/lib/roles';
+import { createClient } from '@/lib/supabase-server';
+import { CAN_CREATE_REPORTS, IS_MANAGEMENT } from '@/lib/roles';
+import { requireProfile } from '@/lib/auth';
+import ReportForm from '@/components/ReportForm';
 
-// Placeholder: the digitised Microsoft field-report form is built in Phase 2.
-// Guarded here so only report-creating roles can reach it.
+// Digitised Supervisor Daily/Weekly field report. Field supervisors file for
+// their own (site, stream), auto-filled. Ops/exec may choose any site/stream.
 export default async function NewReportPage() {
   const profile = await requireProfile();
   if (!CAN_CREATE_REPORTS.includes(profile.role)) redirect('/dashboard');
 
+  const supabase = await createClient();
+  const canChooseScope = IS_MANAGEMENT.includes(profile.role);
+
+  let lockedSiteName: string | null = null;
+  let sites: { id: string; name: string }[] = [];
+
+  if (canChooseScope) {
+    const { data } = await supabase.from('sites').select('id, name').order('name');
+    sites = data ?? [];
+  } else if (profile.home_site_id) {
+    const { data } = await supabase.from('sites').select('name').eq('id', profile.home_site_id).maybeSingle();
+    lockedSiteName = data?.name ?? null;
+  }
+
   return (
-    <main className="p-6 md:p-10 max-w-2xl mx-auto">
-      <Link href="/dashboard" className="inline-flex items-center gap-2 text-sm font-semibold text-gray-500 hover:text-gray-900 mb-6">
-        <ArrowLeft className="w-4 h-4" /> Back to dashboard
-      </Link>
-      <div className="bg-white rounded-3xl p-8 md:p-10 shadow-sm ring-1 ring-gray-100 text-center">
-        <div className="w-16 h-16 bg-yami-blue/10 rounded-full flex items-center justify-center mx-auto mb-4">
-          <ClipboardList className="w-8 h-8 text-yami-blue" />
-        </div>
-        <h1 className="text-2xl font-bold text-gray-900">Field Report</h1>
-        <p className="text-gray-500 text-sm mt-2 max-w-sm mx-auto">
-          The digitised Supervisor Daily/Weekly report form arrives in Phase 2. Your
-          reports will be tied automatically to your site and stream.
-        </p>
+    <div className="p-6 md:p-8 lg:p-10">
+      <div className="max-w-2xl mx-auto mb-6">
+        <Link href="/dashboard" className="inline-flex items-center gap-2 text-sm font-semibold text-gray-500 hover:text-gray-900">
+          <ArrowLeft className="w-4 h-4" /> Back to dashboard
+        </Link>
+        <h1 className="text-3xl font-bold text-gray-900 tracking-tight mt-3">Field Report</h1>
+        <p className="text-sm text-gray-500 mt-1">Daily / weekly supervisor report. Tied to your site and stream automatically.</p>
       </div>
-    </main>
+
+      <ReportForm
+        supervisorId={profile.id}
+        lockedSiteId={canChooseScope ? null : profile.home_site_id}
+        lockedSiteName={lockedSiteName}
+        lockedStream={canChooseScope ? null : profile.stream}
+        sites={sites}
+        canChooseScope={canChooseScope}
+      />
+    </div>
   );
 }

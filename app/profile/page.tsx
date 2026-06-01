@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase-server';
-import { requireProfile, ROLE_LABELS, STREAM_LABELS, displayTitle } from '@/lib/roles';
+import { ROLE_LABELS, STREAM_LABELS, displayTitle } from '@/lib/roles';
+import { requireProfile } from '@/lib/auth';
 import LogoutButton from '@/app/components/LogoutButton';
 import { Leaf } from 'lucide-react';
 
