@@ -8,6 +8,7 @@ import {
   LayoutDashboard,
   BarChart3,
   BookOpen,
+  Users2,
   User,
   Menu,
   LogOut,
@@ -20,14 +21,17 @@ export default function Sidebar() {
   const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
   const [showAnalytics, setShowAnalytics] = useState(false)
+  const [showAdoption, setShowAdoption] = useState(false)
 
-  // Show Analytics to everyone who can see reports (everyone except eco-workers).
+  // Analytics for everyone who can see reports (not eco-workers); Adoption for management.
   useEffect(() => {
     let active = true
     supabase.auth.getUser().then(async ({ data }) => {
       if (!data.user) return
       const { data: p } = await supabase.from("app_profiles").select("role").eq("id", data.user.id).maybeSingle()
-      if (active && p && p.role !== "eco_worker") setShowAnalytics(true)
+      if (!active || !p) return
+      if (p.role !== "eco_worker") setShowAnalytics(true)
+      if (["executive", "operations_manager", "district_coordinator"].includes(p.role)) setShowAdoption(true)
     })
     return () => { active = false }
   }, [])
@@ -35,6 +39,7 @@ export default function Sidebar() {
   const navItems = [
     { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
     ...(showAnalytics ? [{ label: "Analytics", href: "/analytics", icon: BarChart3 }] : []),
+    ...(showAdoption ? [{ label: "Adoption", href: "/adoption", icon: Users2 }] : []),
     { label: "Stories", href: "/stories", icon: BookOpen },
     { label: "Profile", href: "/profile", icon: User },
   ]
