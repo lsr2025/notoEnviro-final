@@ -44,5 +44,9 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|manifest.json|icon-).*)'],
+  // Skip Next internals, the PWA files, and any static asset (anything with a file
+  // extension) so public files like the logo load on the unauthenticated login page.
+  matcher: [
+    '/((?!_next/static|_next/image|favicon.ico|manifest.json|sw.js|workbox-|.*\\.(?:png|jpg|jpeg|gif|svg|webp|ico|js|css|woff2?|txt)).*)',
+  ],
 };
