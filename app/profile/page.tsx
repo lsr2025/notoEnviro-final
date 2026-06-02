@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase-server';
 import { ROLE_LABELS, STREAM_LABELS, displayTitle } from '@/lib/roles';
 import { requireProfile } from '@/lib/auth';
 import LogoutButton from '@/app/components/LogoutButton';
+import ChangePasswordCard from '@/components/ChangePasswordCard';
 import { Leaf } from 'lucide-react';
 
 export default async function ProfilePage() {
@@ -48,6 +49,8 @@ export default async function ProfilePage() {
           </div>
         </dl>
       </div>
+
+      <ChangePasswordCard />
 
       <LogoutButton />
     </main>
