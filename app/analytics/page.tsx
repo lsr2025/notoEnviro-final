@@ -116,7 +116,7 @@ export default async function AnalyticsPage() {
         </Card>
       </div>
 
-      {a.silentSites.length > 0 && (
+      {IS_MANAGEMENT.includes(profile.role) && a.silentSites.length > 0 && (
         <div className="bg-amber-50 border border-amber-100 rounded-3xl p-6 flex items-start gap-3">
           <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
           <div>

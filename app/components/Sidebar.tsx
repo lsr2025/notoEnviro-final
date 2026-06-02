@@ -59,8 +59,8 @@ export default function Sidebar() {
           <Menu className="w-6 h-6" />
         </button>
         <div className="flex items-center gap-3 ml-2">
-          <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center overflow-hidden shrink-0">
-             <span className="text-yami-navy font-bold text-xs">NE</span>
+          <div className="bg-white rounded-lg px-2 py-1 inline-flex shrink-0">
+            <img src="/yami-logo.png" alt="Yami Mine Solutions" className="h-4 w-auto" />
           </div>
           <span className="text-white font-bold text-sm tracking-wide">NOTOENVIRO</span>
         </div>
