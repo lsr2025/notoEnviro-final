@@ -81,15 +81,15 @@ export default function Sidebar() {
       )}>
         {/* Logo Area */}
         <div className="px-6 pt-8 pb-6 border-b border-white/5">
-          <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-xl bg-white flex items-center justify-center overflow-hidden shrink-0">
-              <span className="text-yami-navy font-black text-xl">NE</span>
-            </div>
+          <div className="bg-white rounded-xl px-3 py-2 inline-flex">
+            <img src="/yami-logo.png" alt="Yami Mine Solutions" className="h-7 w-auto" />
+          </div>
+          <div className="flex items-center gap-3 mt-3">
             <div>
               <h1 className="text-white font-bold text-base leading-tight tracking-wide">NOTOENVIRO</h1>
-              <p className="text-white/40 text-[10px] font-medium tracking-widest uppercase">Solutions</p>
+              <p className="text-white/40 text-[10px] font-medium tracking-widest uppercase">Operations Platform</p>
             </div>
-            <button 
+            <button
               onClick={() => setIsOpen(false)}
               className="lg:hidden ml-auto p-2 text-white/40 hover:text-white"
             >

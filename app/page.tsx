@@ -56,13 +56,13 @@ export default function LoginPage() {
         <div className="absolute bottom-[-5%] left-[-5%] w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl" />
         
         <div className="relative z-10">
-          <div className="flex items-center gap-4 mb-12">
-            <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center shadow-xl">
-              <span className="text-yami-navy font-black text-2xl">NE</span>
+          <div className="mb-12">
+            <div className="inline-flex bg-white rounded-2xl px-5 py-3 shadow-xl">
+              <img src="/yami-logo.png" alt="Yami Mine Solutions" className="h-10 w-auto" />
             </div>
-            <div>
+            <div className="mt-5">
               <h1 className="text-white font-bold text-2xl tracking-tight">NOTOENVIRO</h1>
-              <p className="text-white/40 text-xs font-medium tracking-widest uppercase">Solutions</p>
+              <p className="text-white/40 text-xs font-medium tracking-widest uppercase">A Yami Mine Solutions programme</p>
             </div>
           </div>
 
@@ -107,11 +107,9 @@ export default function LoginPage() {
         <div className="w-full max-w-md">
           {/* Mobile Logo */}
           <div className="lg:hidden text-center mb-10">
-             <div className="w-16 h-16 rounded-2xl bg-yami-navy flex items-center justify-center shadow-xl mx-auto mb-4">
-              <span className="text-white font-black text-2xl">NE</span>
-            </div>
+            <img src="/yami-logo.png" alt="Yami Mine Solutions" className="h-12 w-auto mx-auto mb-4" />
             <h1 className="text-2xl font-bold text-gray-900 tracking-tight">NotoEnviro</h1>
-            <p className="text-gray-500 text-sm mt-1">YMS × IDC SEF Programme</p>
+            <p className="text-gray-500 text-sm mt-1">A Yami Mine Solutions programme · IDC SEF</p>
           </div>
 
           <div className="bg-white rounded-3xl p-8 md:p-10 shadow-sm ring-1 ring-gray-100">
