@@ -12,7 +12,10 @@ import {
   User,
   Menu,
   LogOut,
-  X
+  X,
+  Radio,
+  FileText,
+  Sparkles
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -39,8 +42,11 @@ export default function Sidebar() {
   const navItems = [
     { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
     ...(showAnalytics ? [{ label: "Analytics", href: "/analytics", icon: BarChart3 }] : []),
+    ...(showAnalytics ? [{ label: "Command Centre", href: "/command-centre", icon: Radio }] : []),
+    ...(showAnalytics ? [{ label: "Reports", href: "/reports", icon: FileText }] : []),
     ...(showAdoption ? [{ label: "Adoption", href: "/adoption", icon: Users2 }] : []),
     { label: "Stories", href: "/stories", icon: BookOpen },
+    ...(showAnalytics ? [{ label: "AI Assistant", href: "/ai", icon: Sparkles }] : []),
     { label: "Profile", href: "/profile", icon: User },
   ]
 
