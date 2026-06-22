@@ -6,9 +6,11 @@ import { createClient } from '@/lib/supabase-server';
 import { requireProfile } from '@/lib/auth';
 import { getAnalytics } from '@/lib/analytics';
 import { IS_MANAGEMENT } from '@/lib/roles';
+import { resolveModel, modelLabel } from '@/lib/ai';
 
-// Routed through Vercel AI Gateway. Override with AI_BRIEFING_MODEL if needed.
-const MODEL = process.env.AI_BRIEFING_MODEL || 'anthropic/claude-sonnet-4';
+// Direct to Anthropic when ANTHROPIC_API_KEY is set, else via Vercel AI Gateway.
+const MODEL = resolveModel(process.env.AI_BRIEFING_MODEL);
+const MODEL_LABEL = modelLabel(process.env.AI_BRIEFING_MODEL);
 
 export async function generateBriefing(): Promise<{ ok: boolean; error?: string }> {
   const profile = await requireProfile();
@@ -47,7 +49,7 @@ export async function generateBriefing(): Promise<{ ok: boolean; error?: string 
   try {
     const { text } = await generateText({ model: MODEL, prompt, maxOutputTokens: 1000, temperature: 0.3 });
     const { error } = await supabase.from('programme_insights').insert({
-      scope: 'programme', briefing: text, model: MODEL, reports_count: a.kpis.reports, generated_by: profile.id,
+      scope: 'programme', briefing: text, model: MODEL_LABEL, reports_count: a.kpis.reports, generated_by: profile.id,
     });
     if (error) return { ok: false, error: error.message };
     revalidatePath('/analytics');

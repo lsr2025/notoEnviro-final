@@ -4,9 +4,10 @@ import { generateText, type ModelMessage } from 'ai';
 import { createClient } from '@/lib/supabase-server';
 import { requireProfile } from '@/lib/auth';
 import { getAnalytics } from '@/lib/analytics';
+import { resolveModel } from '@/lib/ai';
 
-// Routed through Vercel AI Gateway (same as the executive briefing).
-const MODEL = process.env.AI_ASSISTANT_MODEL || process.env.AI_BRIEFING_MODEL || 'anthropic/claude-sonnet-4';
+// Direct to Anthropic when ANTHROPIC_API_KEY is set, else via Vercel AI Gateway.
+const MODEL = resolveModel(process.env.AI_ASSISTANT_MODEL || process.env.AI_BRIEFING_MODEL);
 
 export type ChatMessage = { role: 'user' | 'assistant'; content: string };
 
